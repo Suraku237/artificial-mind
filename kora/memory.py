@@ -114,7 +114,7 @@ class MemoryStore:
         ).fetchall()
         return [dict(r) for r in rows]
 
-    def recall(self, query, k=5, min_score=0.35):
+    def recall(self, query, k=5, min_score=0.30):
         if self._ids is None:
             self._load_index()
         results = []

@@ -10,7 +10,7 @@ HELP = """Commands:
   log                   show the audit log
   help | quit"""
 
-SURE = 0.60  # above this: confident match; between 0.35 and this: "not sure"
+SURE = 0.40  # tuned with eval_recall.py; between min_score (0.30) and this: "not sure"
 
 
 def main():
