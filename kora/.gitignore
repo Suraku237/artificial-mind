@@ -1,3 +1,5 @@
 .venv/
 kora.db
 __pycache__/
+.pytest_cache/
+test-results.xml

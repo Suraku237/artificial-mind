@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+
+    options {
+        timeout(time: 45, unit: 'MINUTES')
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+    }
+
+    // Polling keeps Jenkins private: GitHub never needs to reach the server.
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
+
+    environment {
+        IMAGE = 'kora:ci'
+        CONTAINER = "kora-test-${env.BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Build image') {
+            steps {
+                dir('kora') {
+                    sh 'docker build --pull -t "$IMAGE" .'
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                // No network and capped resources: tests can't reach the internet or starve the other services.
+                sh '''
+                    docker run --name "$CONTAINER" --network none --memory 1500m --cpus 2 \
+                        "$IMAGE" python -m pytest --junitxml=/tmp/test-results.xml
+                '''
+            }
+            post {
+                always {
+                    sh 'docker cp "$CONTAINER":/tmp/test-results.xml kora/test-results.xml || true'
+                    junit allowEmptyResults: true, testResults: 'kora/test-results.xml'
+                    sh 'docker rm -f "$CONTAINER" || true'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Only removes old, untagged KORA images; other projects' images are untouched.
+            sh 'docker image prune -f --filter label=project=kora || true'
+        }
+    }
+}

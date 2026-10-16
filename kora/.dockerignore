@@ -1,0 +1,7 @@
+.venv/
+kora.db
+__pycache__/
+*.pyc
+.pytest_cache/
+test-results.xml
+Jenkinsfile

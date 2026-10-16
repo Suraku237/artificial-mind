@@ -53,13 +53,13 @@ def now():
 
 
 class MemoryStore:
-    def __init__(self, db_path="kora.db", model_name=MODEL_NAME):
+    def __init__(self, db_path="kora.db", model_name=MODEL_NAME, model=None):
         self.db = sqlite3.connect(db_path)
         self.db.row_factory = sqlite3.Row
         # Overwrite deleted rows on disk so "forget" really forgets.
         self.db.execute("PRAGMA secure_delete = ON")
         self.db.executescript(SCHEMA)
-        self.model = SentenceTransformer(model_name, device="cpu")
+        self.model = model or SentenceTransformer(model_name, device="cpu")
         self.dim = self.model.get_embedding_dimension()
         self._ids = None
         self._matrix = None
