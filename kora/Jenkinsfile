@@ -1,5 +1,6 @@
 pipeline {
-    agent any
+    // Pin to the server (it has Docker); older installs label it "master" instead of "built-in".
+    agent { label 'built-in || master' }
 
     options {
         timeout(time: 45, unit: 'MINUTES')
